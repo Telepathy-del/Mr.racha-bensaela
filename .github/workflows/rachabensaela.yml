@@ -34,3 +34,350 @@ jobs:ftp.microsoft.com
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
+join
+#192.168.1.1
+#main(show)
+#[microsoft/onnxruntime] Failed to use self created stream for a new cuda session (#8578)
+
+
+#Discussed in #8460
+Originally posted by sunhmy July 22, 2021
+Hi,
+
+I'd like to pick up the multi-stream feature added by using the has_user_compute_stream flag . However, I run into the following a segfault with the following code:
+
+Ort::SessionOptions session_options;
+session_options.SetIntraOpNumThreads(10);
+
+session_options.SetGraphOptimizationLevel(ORT_ENABLE_BASIC);
+#ifdef USE_CUDA
+printf("Use cuda\n");
+
+cudaStream_t stream;
+cudaStreamCreate(&stream);
+
+OrtCUDAProviderOptions cuda_options{
+0,
+OrtCudnnConvAlgoSearch::EXHAUSTIVE,
+std::numeric_limits<size_t>::max(),
+0,
+false,
+true,
+stream};
+
+session_options.AppendExecutionProvider_CUDA(cuda_options);
+
+my OnnxRuntime version is 1.7.0, CUDA Toolkit version is 10.2, backtrace is as below:
+
+2021-07-22 19:57:46.640710391 [E:onnxruntime:, inference_session.cc:1294 operator()] Exception during initialization: /home/smy/onnxruntime/onnxruntime/onnxruntime/core/providers/cuda/cuda_call.cc:123 bool onnxruntime::CudaCall(ERRTYPE, const char*, const char*, ERRTYPE, const char*) [with ERRTYPE = cudnnStatus_t; bool THRW = true] /home/smy/onnxruntime/onnxruntime/onnxruntime/core/providers/cuda/cuda_call.cc:117 bool onnxruntime::CudaCall(ERRTYPE, const char*, const char*, ERRTYPE, const char*) [with ERRTYPE = cudnnStatus_t; bool THRW = true] CUDNN failure 7: CUDNN_STATUS_MAPPING_ERROR ; GPU=0 ; hostname=dg01-baymax-k8s-test001-node-10-52-138-206 ; expr=cudnnSetStream(cudnn_handle_, stream);
+
+terminate called after throwing an instance of 'Ort::Exception'
+what(): Exception during initialization: /home/smy/onnxruntime/onnxruntime/onnxruntime/core/providers/cuda/cuda_call.cc:123 bool onnxruntime::CudaCall(ERRTYPE, const char*, const char*, ERRTYPE, const char*) [with ERRTYPE = cudnnStatus_t; bool THRW = true] /home/smy/onnxruntime/onnxruntime/onnxruntime/core/providers/cuda/cuda_call.cc:117 bool onnxruntime::CudaCall(ERRTYPE, const char*, const char*, ERRTYPE, const char*) [with ERRTYPE = cudnnStatus_t; bool THRW = true] CUDNN failure 7: CUDNN_STATUS_MAPPING_ERROR ; GPU=0 ; hostname=dg01-baymax-k8s-test001-node-10-52-138-206 ; expr=cudnnSetStream(cudnn_handle_, stream);
+
+Aborted (core dumped)
+Program received signal SIGABRT, Aborted.
+0x00007fffeff5d207 in raise () from /lib64/libc.so.6
+Missing separate debuginfos, use: debuginfo-install glibc-2.17-260.el7.x86_64 libgcc-4.8.5-36.el7_6.2.x86_64 libstdc++-4.8.5-36.el7_6.2.x86_64
+(gdb) bt
+#0 0x00007fffeff5d207 in raise () from /lib64/libc.so.6
+#1 0x00007fffeff5e8f8 in abort () from /lib64/libc.so.6
+#2 0x00007ffff086c7d5 in __gnu_cxx::__verbose_terminate_handler() () from /lib64/libstdc++.so.6
+#3 0x00007ffff086a746 in ?? () from /lib64/libstdc++.so.6
+#4 0x00007ffff086a773 in std::terminate() () from /lib64/libstdc++.so.6
+#5 0x00007ffff086a993 in __cxa_throw () from /lib64/libstdc++.so.6
+#6 0x000000000040672f in Ort::ThrowOnError(OrtApi const&, OrtStatus*) ()
+#7 0x000000000040678e in Ort::ThrowOnError(OrtStatus*) ()
+#8 0x0000000000406a87 in Ort::Session::Session(Ort::Env&, char const*, Ort::SessionOptions const&) ()
+#9 0x0000000000405a44 in main ()
+(gdb) ^CQuit
+
+Any suggestion for how I should overcome this?
+
+Thanks!
+
+—
+You are receiving this because you are subscribed to this thread.
+Reply to this email directly, view it on GitHub, or unsubscribe.
+
+Looks like terminate() is called because your main() is not handling the exception. This is according to the C++ standard.
+
+The cause for the exception is an error that cudnnSetStream() returns: CUDNN_STATUS_MAPPING_ERROR. There may be multiple reasons for this.
+
+#show
+The cause for the exception is an error that cudnnSetStream() returns: CUDNN_STATUS_MAPPING_ERROR. There may be multiple reasons for this.
+
+
+
+
+
+#run
++
+<HTML>
+<HEAD>
+    <TITLE>..การแบ่งเฟรม...</TITLE>
+    </HEAD>
+    <FRAMESET>
+        ........
+        
+        
+        
+        
+        
+        
+        ........
+        </FRAMESET>
+        </HTML>
+    <framesetcols="value1,value2"
+    lt;framesetrows="value1,value2"
+<Pixel>
+        <frameset cols="200,600">(%)</frameset>  
+        <frameset cols="25%,25%,50%">
+            (*)</frameset>
+            <frameset cols="240,*"></frameset>
+        <frameset cols="*,*,*"></frameset>
+
+
++
+
+<FRAME SRC=".htm,html,.gif,.jpg"></FRAME>
+<NOFRAME>(Web browser)
+<FRAME NAME="NAME" > (FRAME)</FRAME>
+<FRAME MARGINWIDTH="Value">(Margin),(FRAME)</FRAME>
+<FRAME MARGINHEIGHT="Value"></FRAME>
+<FRAME SCROLLING="YES,NO, AUTO"></FRAME>
+(Scrolling bar) > (FRAME)
+
+<>+
+<YES><\YES>
+<AUTO></AUTO>
+<FRAMEBORDER="0,1"></FRAMEBORDER>
+=border="1"(Frame)
+=bordercolor="#0033FF" >(Frame)
+<NORESIZE>
++
+
+
+(File) <>
+#Test.html
+<html>
+    <head>
+    <tile>Android</tile>
+  </head>
+  <frameset cols="155,*"frameborder="YES"
+  border="1"framespacing="1"bordercolor="#0033FF">
+  <frame name="menu"noresize src="P1.html">
+  <frame name="mainframe"noresize src="02.html">
+  </frame>
+  </frame>
+  </frameset>
+  </body>
+  </html>
+  
+  +
+  run <>+
+
+<\>+ upload >  or > 
+#192.168.1.1   + <+>+ Android knox <>+
+#192.168.1.168      <>+
+#main("B")     <>+
++
+#[microsoft/onnxruntime] Now to single (#8611)    <>+
++Downloads >+ ZArchiver > Download >File,d,f > FileFolder > go > ftp://Microsoft.com/FTP/SERVER >Save File         <>+
+<and> Save <> Foldername:{"printer"};     <>+
+
+<\> and > OR > DO > lnput.<textarea name="Local" id=3900100981000,AB1598451="8" rows="1" cols="40"></textarea>
++<> onnxruntime    <>+
+  +Downloads > File > and > FolderFile <+> ไฟล์ทั้งหมด > go > to > server@printshare.<command type="command" label="icon" icon="Label"ทั้งหมด />SEPF_SM-J610F_10_0020 >and >W-K380-TVM f/2.2•1/8•2.27 มม.•ISO1600 <> H2M Thailand  <>+
+  +<> Personal details           <>+
+  +HDR +PHOTO+ รูปภาพ+ภาพหน้าจอ+วีดีโอ+วีซีดี+VDO+DVD+MP3+MP4+MP5+D+dl#+data+Frame > OR <+>Save > GIF > Downloads >SERVER > System <+> run >+
++Save +Add Network Location {"SERVER"} <+> Username: {"Anonymous"};     <>+
+
+
++Downloads          <>+
++
+  #printf (int) > Show <html> Add Application Network Server <html>  <>+
+
+  
+  
+  
+  
+  <\>run     <html></html>
+  
+      
+      
+      
+      
+      
+
+
+
+
+
+=}1118ef66-d0f8-4513-81a5-0ff9f94cfa39_3900100981000{
+run on net for join depositor name racha tepvarin
+join passbook is just a savings government bank,bank's to serial no.200053165602
+join use send cash deposit and cash deposit by transferring and cheque deposit notes account number a/c no.020463706901 
+join savings deposit passbook account no.3810445770
+join promptpay identification number no.3900100981000 { net } = 
+join a/c no.0635314858
+{$}
+{B}
+{€}
+{¥}
+{USD}
+{CNY}
+{BAT}
+{EUR}
+{KRW}
+{PHP}
+{TWD}
+{AED}
+{VND}
+{MYR}
+{THB}
+{IDR}
+{SGD}
+{CAD}
+{Token}
+{Tokens}
+{JPY}
+{LAK}
+{Coin}
+{Coins}
+{Bitcoin}
+{Bitcoins}      
+Running for net please
+{
+)¤ÅáG`©U>sæL(}Âr²U3ðñ ñ"\
+<$
+¬í sr java.util.HashMapÚÁÃ`Ñ F 
+loadFactorI 	thresholdxp?@     w      t anonymous_user_id_backup_keyt +hsft_anon_20201015155148323-01q80mviigujbypt key_support_device_idt $a185e148-6050-4346-bb37-40d870df450fx="นายราชา​เบ็ญแสละ"
+¬PERSONAL GOOGLE MY BUSINESS INFO NUMBER :"3900100981000"
+¬PASSPORT INFO NUMBER:"U816030"
+¬DEVICE  MISS:"MR.RACHA" 
+¬SURNAME:"BENSAELA"
+¬SEX:"M":"MR." 
+¬1.$a185e148-6050-4346-bb37-40d870df450fx="MR.RACHA BENSAELA"="N" 
+¬"INBOX":"ATTN":"RachaTepvarin":"RE:" 
+¬08 NOV 1982 
+¬90280 
+¬SONGKHLA 
+¬TRThailandGroup.car 
+¬bensalea424001@gmail.com
+¬192.168.1.hsft_anon_20201015155148323-01q80mviigujbypt="SEPF_SM-J610F-9_0010"="SAMSUNG ACCOUNT@Tepvarinr@gmail.com"
+¬CHIEF LOCAL:"SEPF_SM-J610F-9_0010"
+¬PRODUCT:TELEPHONE MOBILE SAMSUNG GALAXY 
+¬J6+ POWERED BY ANDROID DEVELOPER 
+¬INFO SECURED BY KNOX 
+¬INFO INTERNET EXPLORER MICROSOFT  
+OFFICE WINDOWS LIVE MESSENGER"MSN":"QQ":"SANOOK.COM":"HUNSA.COM":"HOTMAIL.HTML":"M.OUTLOOK.COM";
+¬ONNXRUNTIME:"MR.RACHA TEPVARIN":__INFO__:INDEX EXPERIENCE WINDOWS GO LIVE TOOLS SPELLING TO CORRECT OPTIONS-ONS
+TRUST CENTER & GRID & GLUE & COLOR PALETTE
+CUSTOMIZE MACK MARKUP FILE NEW & OPEN CTRL+0 >
+¬SAVE CTRL+5:802.11ab/n/ac 
+¬SAVE CTRL+HSFT_ANON_20201015155148323-01Q80MVIIGUJBYPT > HSFT_ANON_20201015155148323-01Q80MVIIGUJBYPT > ENTER KEYBOARD:"KER"=ONE PROPERTIES HIDDEN" > KNOCK_KNOCK:"192.168.1.40"STATUS DEVICE PRINTER AFICIO BP20 SERIES PCL6
+PROPERTIES SAVE AS & SAVE AS WEB PAGE REMOVE HIDDEN INFORMATION WINDOWS TEMPLATE CATEGORIES VALUE STREAM MAP & ORGANIZATION NETWORK BUSINESS GITTING STARTED EDIT FILE VIEW MAPS AND FLOOR PLANS. GENERAL DATA INTERNET EXPLORER WZARD INSTALLATION SHARE DIR WHEN USING LANGUAGE ENGLISH COMMUNICATE AS WEBSERVER UNICODE ADVANCED GOOGLE PLAY PUBLISH EASILY NAVIGATION CONTROLS.:USER-DEVICE:"RachaTepvarin"GO PROFESSIONAL TO VISUALIZE AND ANALYZE DATA MICROSOFT OFFICE 365 AONE INFO RIGHT AWAY TOOLS.SHAPES FILE SYSLOG INSTALL AS ISSUE1498.:NOTEPADDING:"RACHA TEPVARIN", 
+¬PORT:"9100" 
+¬LOCATION:"FE80::2%9100":"PROTOCOL-FOR@RAM,SNMP.VERIFICATION:"CODE" 
+¬AES_128_GCM 
+¬ECDHE_ECDSA 
+¬CHACHA20_POLY1305 
+¬X25519 
+¬TLSv1.X25519 
+¬TLSv1.3900100981000:__INFO__:"BRITISH COUNCIL="196":"7°11'54.5"N100°33'50.6"EXAMPLE:CONTOSO.157.54.0.1Or3ffe:1234:1111" ¬
+¬5HX7+9J:"TAMBON HUAKHAO
+195/47 M.6 SOI.SUNTITAM1-2
+SINGHANAKRON 404 
+SONGKHLA 
+90280¬ 
+MR.RACHA TEPVARIN 
+LEGACY LOGIN"¬
+¬CARELL.BITLYID:"00371-OEM-8992671-00008" ¬.DOG
+¬.IMG
+¬.GIB
+¬.HSFT_ANON_20201015155148323-01Q80MVIIGUJBYPT > ¬MUSIC/VLC:" ANDROID" ¬
+¬.MP3
+¬.MP4
+¬.HDR2
+¬"CCTV/CMOS/CAM":"1080 PIXELS"="M.YOUTUBE-FOR@M.FACEBOOK/ME.bensalea424001@gmail.com":
+ENHANCE FULL HDR DIGITAL CAMERA-FOR@DSLR:__INFO__:(1)INDEX:"COMPUTED STYLE" 
+¬AWG    1.8.:MR.RACHA TEPVARIN:3900100981000,
+¬BAM    1.00371-OEM-8992671-00008:MR.RACHA TEPVARIN:3900100981000, 
+¬ANG    1.888.:MR.RACHA TEPVARIN:3900100981000,
+¬EUR    1.1111.:MR.RACHA TEPVARIN:3900100981000,
+¬BTC    MR.RACHA TEPVARIN:3900100981000,
+¬AED    MR.RACHA TEPVARIN:3900100981000,
+>_CONNECT CURRENCIES RATES WEREUP-DATETIME:23:22 JAN 18,2023-FOR@BF05-19E7.GO.IN://FTP.MICROSOFT.COM", 
+¬NOW DIRECT THERMAL LABELS,LOT:3900100981000,
+¬PHRV.BRAND, TABLET:3900100981000,
+¬CARE LEBEL:3900100981000,
+¬EMBLEM BADGE:3900100981000,
+¬GREEN LEBEL:3900100981000,
+¬SAVE VIEW  ATM WHITE BANK MPLS-MULTIPROTOCOL SWITCHING-FOR@SPSS.EXCEL:"ECO-ELABEL-PRINTING:SYSTEM:" 775":"DELL":"TRThailand"
+>_CONNECT-FOR@AIS:3900100981000,
+%%EOF"    net info execute > $ >    
+join Server bitcoin savings at 
+=}1118ef66-d0f8-4513-81a5-0ff9f94cfa39_3900100981000{
+run on net for join depositor name racha tepvarin
+join passbook is just a savings government bank,bank's to serial no.200053165602
+join use send save on cash deposit and cash deposit by transferring and cheque deposit notes account number a/c no.020463706901 
+join savings deposit passbook account no.3810445770
+join promptpay identification number no.3900100981000 { git } = 
+join a/c no.0635314858
+{$}
+{B}
+{€}
+{¥}
+{USD}
+{CNY}
+{BAT}
+{EUR}
+{KRW}
+{PHP}
+{TWD}
+{AED}
+{VND}
+{MYR}
+{THB}
+{IDR}
+{SGD}
+{CAD}
+{Token}
+{Tokens}
+{JPY}
+{LAK}
+{Coin}
+{Coins}
+{Bitcoin}
+{Bitcoins}  >all at refernce number code editor-compiler&ide Rhythm Software Version 0.11.10(OPPO CPH2711) at <script type="text/javascript" charset="utf-8">
+    play a execute ref function(e){return
+    document.queryselector(e)}$
+</script></THARACHA>   for net Execl join  
+Running for net please Location: http://localhost:26543/storage/emulated/0/Printer/ftp.microsolf.com/%28-3.html>memo no.3900100981000 = 
+{'name':racha tepvarin'john','08 Nov 1982':age}
+at play points 
+at Application 
+at key-value 
+at ordinal number
+at cardinal number
+at floor all dict 
+at empty
+at storage
+at /
+at 11th
+at 12th
+at 13th
+at 20th-twentieth
+at second 
+at first 
+at 2nd
+at 3rd(third)
+at 22rd,32rd
+at 21st,31st
+net play online at console all execute join 
+>$
+<·
+><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<·1
+
